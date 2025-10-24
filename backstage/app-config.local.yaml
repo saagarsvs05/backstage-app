@@ -72,14 +72,14 @@ integrations:
       # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
       token: ${GITHUB_TOKEN}
 
-kubernetes:
-  serviceLocatorMethod:
-    type: 'multiTenant'
-  clusterLocatorMethods:
-    - type: 'config'
-      clusters:
-        - url: https://backstage--devopsautomation-b58fc1-zoftbowd.hcp.eastus2.azmk8s.io
-          name: backstage-aks
-          authProvider: 'azure'
-          skipTLSVerify: false
-          skipMetricsLookup: false
+# kubernetes:
+#   serviceLocatorMethod:
+#     type: 'multiTenant'
+#   clusterLocatorMethods:
+#     - type: 'config'
+#       clusters:
+#         - url: https://backstage--devopsautomation-b58fc1-zoftbowd.hcp.eastus2.azmk8s.io
+#           name: backstage-aks
+#           authProvider: 'azure'
+#           skipTLSVerify: false
+#           skipMetricsLookup: false
