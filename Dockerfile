@@ -27,4 +27,4 @@ ENV NODE_ENV=development
 ENV NODE_OPTIONS=--no-node-snapshot
 
 # Automatically start Backstage
-CMD ["yarn", "start"]
+CMD ["yarn", "install", "start"]
