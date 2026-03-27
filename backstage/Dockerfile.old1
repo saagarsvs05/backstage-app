@@ -1,0 +1,124 @@
+# # ---------- Build Stage ----------
+# FROM node:20-bookworm-slim AS builder
+
+# WORKDIR /app
+# COPY . .
+# RUN yarn install --frozen-lockfile
+# RUN yarn build:backend
+
+# # ---------- Runtime Stage ----------
+# FROM node:20-bookworm-slim
+
+# WORKDIR /app
+
+# COPY --from=builder /app .
+
+# ENV NODE_ENV=production
+
+# EXPOSE 7007
+
+# CMD ["node", "packages/backend", "--config", "app-config.production.yaml"]
+
+
+# # ---------- Build Stage ----------
+
+# FROM node:20-bookworm-slim AS builder
+
+# WORKDIR /app
+
+# # Install dependencies
+# COPY package.json yarn.lock ./
+# COPY packages ./packages
+# COPY plugins ./plugins
+
+# RUN yarn install --frozen-lockfile
+
+# # Build backend + frontend
+# RUN yarn build
+
+# # ---------- Runtime Stage ----------
+# FROM node:20-bookworm-slim
+
+# WORKDIR /app
+
+# # Copy built app
+# COPY --from=builder /app ./
+
+# ENV NODE_ENV=production
+
+# EXPOSE 7007
+
+# CMD ["node", "packages/backend", "--config", "app-config.production.yaml"]
+
+# # ---------- Build Stage ----------
+# FROM node:20-bookworm-slim AS builder
+
+# WORKDIR /app
+
+# # ✅ Enable Corepack (THIS FIXES YOUR ERROR)
+# RUN corepack enable
+
+# # Copy files
+# COPY package.json yarn.lock .yarnrc.yml ./
+# COPY .yarn ./.yarn
+# COPY packages ./packages
+# COPY plugins ./plugins
+
+# # Install dependencies
+# RUN yarn install --immutable
+
+# # Build app
+# RUN yarn workspaces foreach -A run build
+
+# # ---------- Runtime Stage ----------
+# FROM node:20-bookworm-slim
+
+# WORKDIR /app
+
+# RUN corepack enable
+
+# COPY --from=builder /app ./
+
+# ENV NODE_ENV=production
+
+# EXPOSE 7007
+
+# CMD ["node", "packages/backend", "--config", "app-config.production.yaml"]
+
+# ---------- Build Stage ----------
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /app
+
+RUN corepack enable
+
+COPY app-config*.yaml ./
+
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn ./.yarn
+COPY packages ./packages
+COPY plugins ./plugins
+
+
+RUN yarn install --immutable
+
+# ✅ Your correct build (already correct)
+# RUN yarn build:backend
+RUN yarn build:all
+
+# ---------- Runtime Stage ----------
+FROM node:20-bookworm-slim
+
+WORKDIR /app
+
+RUN corepack enable
+
+COPY --from=builder /app ./
+
+ENV NODE_ENV=production
+
+EXPOSE 7007
+
+# ✅ FIX: use Yarn start instead of node
+CMD ["yarn", "workspace", "backend", "start", "--config", "/app/app-config.production.yaml"]
+# CMD ["yarn", "workspace", "backend", "start", "--config", "/app/app-config.yaml", "--config", "/app/app-config.production.yaml"]

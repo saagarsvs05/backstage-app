@@ -1,0 +1,45 @@
+# Dockerfile
+FROM node:20-bookworm-slim AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Copy repository
+COPY . /workspace
+
+# Enable Yarn and install
+RUN corepack enable && yarn install --immutable --inline-builds
+
+# Build all packages (app + backend)
+RUN yarn build:all
+
+FROM node:20-bookworm-slim AS runner
+
+WORKDIR /app/backstage
+
+# Copy built artifacts and necessary files into expected Backstage layout
+COPY --from=builder /workspace/packages/backend/dist ./packages/backend/dist
+COPY --from=builder /workspace/packages/backend/package.json ./packages/backend/package.json
+COPY --from=builder /workspace/packages/app/dist ./packages/app/dist
+COPY --from=builder /workspace/packages/app/package.json ./packages/app/package.json
+COPY --from=builder /workspace/yarn.lock ./yarn.lock
+COPY --from=builder /workspace/.yarn ./.yarn
+COPY --from=builder /workspace/.yarnrc.yml ./.yarnrc.yml
+
+# Copy runtime configs and catalog so backend can load configuration and entities
+COPY --from=builder /workspace/app-config.yaml ./app-config.yaml
+COPY --from=builder /workspace/app-config.production.yaml ./app-config.production.yaml
+COPY --from=builder /workspace/catalog ./catalog
+
+# Install only production dependencies for runtime
+RUN corepack enable && yarn workspaces focus --production --all
+
+ENV NODE_ENV=production
+ENV PORT=7007
+
+EXPOSE 7007
+
+# Start the backend
+CMD ["node", "packages/backend/dist/index.cjs.js"]

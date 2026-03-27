@@ -1,0 +1,8 @@
+version: v1.0.0
+stepTimeout: 1000
+env:
+  [DOCKER_BUILDKIT=1]
+steps: # A collection of image or container actions.
+  - build: -t devopsautomationacr.azurecr.io/backstageimage:v1 --platform=linux/arm64 -f packages/backend/Dockerfile .
+  - push:  
+    - devopsautomationacr.azurecr.io/backstageimage:v1

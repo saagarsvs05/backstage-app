@@ -1,4 +1,5 @@
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
+import { microsoftAuthApiRef } from '@backstage/core-plugin-api';
 import { Navigate, Route } from 'react-router-dom';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import {
@@ -63,12 +64,18 @@ const app = createApp({
       <SignInPage
         {...props}
         auto
-        provider={{
+        providers={[{
           id: 'github-auth-provider',
           title: 'GitHub',
           message: 'Sign in using GitHub',
           apiRef: githubAuthApiRef,
-        }}
+        }, 
+        {
+          id: 'microsoft-auth-provider',
+          title: 'Microsoft',
+          message: 'Sign in using Microsoft',
+          apiRef: microsoftAuthApiRef,
+        }]}
       />
     ),
   },

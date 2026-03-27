@@ -1,36 +1,150 @@
 app:
   title: Scaffolded Backstage App
-  baseUrl: http://localhost:3000
+  baseUrl: http://localhost:7007
+  listen: 
+    host: 0.0.0.0
 
 organization:
   name: My Company
 
 backend:
-  # Used for enabling authentication, secret is shared by all backend plugins
-  # See https://backstage.io/docs/auth/service-to-service-auth for
-  # information on the format
-  # auth:
-  #   keys:
-  #     - secret: ${BACKEND_SECRET}
+#   # Used for enabling authentication, secret is shared by all backend plugins
+#   # See https://backstage.io/docs/auth/service-to-service-auth for
+#   # information on the format
+#   # auth:
+#   #   keys:
+#   #     - secret: ${BACKEND_SECRET}
   baseUrl: http://localhost:7007
   listen:
     port: 7007
-    # Uncomment the following host directive to bind to specific interfaces
+#     # Uncomment the following host directive to bind to specific interfaces
     # host: 127.0.0.1
+    host: 0.0.0.0
   csp:
     connect-src: ["'self'", 'http:', 'https:']
-    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
-    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+#     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+#     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: http://localhost:3000
+    origin: http://localhost:7007
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
-  # This is for local development only, it is not recommended to use this in production
-  # The production database configuration is stored in app-config.production.yaml
+    Access-Control-Allow-Origin: '*'
+#   # This is for local development only, it is not recommended to use this in production
+#   # The production database configuration is stored in app-config.production.yaml
   database:
     client: better-sqlite3
     connection: ':memory:'
-  # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+#   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+
+# integrations:
+#   github:
+#     - host: github.com
+#       # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+#       # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
+#       token: ${GITHUB_TOKEN}
+#     ### Example for how to add your GitHub Enterprise instance using the API:
+#     # - host: ghe.example.net
+#     #   apiBaseUrl: https://ghe.example.net/api/v3
+#     #   token: ${GHE_TOKEN}
+
+# proxy:
+#   ### Example for how to add a proxy endpoint for the frontend.
+#   ### A typical reason to do this is to handle HTTPS and CORS for internal services.
+#   # endpoints:
+#   #   '/test':
+#   #     target: 'https://example.com'
+#   #     changeOrigin: true
+
+# # Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# # Note: After experimenting with basic setup, use CI/CD to generate docs
+# # and an external cloud storage when deploying TechDocs for production use-case.
+# # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+# techdocs:
+#   builder: 'local' # Alternatives - 'external'
+#   generator:
+#     runIn: 'docker' # Alternatives - 'local'
+#   publisher:
+#     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+# auth:
+#   # see https://backstage.io/docs/auth/ to learn about auth providers
+#   providers:
+#     # See https://backstage.io/docs/auth/guest/provider
+#     guest: {}
+auth:
+  environment: development
+  providers:
+    guest: {}
+    github:
+      development:
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+        ## uncomment if using GitHub Enterprise
+        # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
+        signIn:
+          resolvers:
+            # Matches the GitHub username with the Backstage user entity name.
+            # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers.
+            - resolver: usernameMatchingUserEntityName
+catalog:
+  rules:
+    - allow: [Component, System, API, Resource, Location, Template]
+  locations:
+    # Local example data, file locations are relative to the backend process, typically `packages/backend`
+    - type: file
+      # target: /app/backstage/catalog/entities/users.yaml
+      # target: /app/examples/entities.yaml
+      target: /app/catalog/entities/users.yaml
+      rules:
+        - allow: [User]
+
+    - type: file
+      # target: /app/backstage/catalog/entities/groups.yaml
+      # target: /app/examples/org.yaml
+      target: /app/catalog/entities/groups.yaml
+      rules:
+        - allow: [Group]
+
+    # - type: file
+    #   # target: /app/backstage/catalog/entities/groups.yaml
+    #   # target: /app/examples/org.yaml
+    #   target: /app/examples/template/template.yaml
+    #   rules:
+    #     - allow: [Template]    
+
+    - type: url
+      target: https://github.com/saagarsvs05/backstage-software-template/blob/main/python-app/template.yaml
+      rules:
+        - allow: [Template]
+    
+    - type: url
+      target: https://github.com/saagarsvs05/backstage-software-template/blob/main/nodejs-app/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: url
+      target: https://github.com/saagarsvs05/backstage-software-template/blob/main/react-app/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: url
+      target: https://github.com/saagarsvs05/backstage-software-template/blob/main/dotnet-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/saagarsvs05/backstage-software-template/blob/main/angular-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/saagarsvs05/backstage-software-template/blob/main/IAC/template.yaml
+      rules:
+        - allow: [Template]
+techdocs:
+  builder: 'local'
+  publisher:
+    type: 'local'
+  generator:
+    runIn: local
 
 integrations:
   github:
@@ -38,76 +152,137 @@ integrations:
       # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
       # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
       token: ${GITHUB_TOKEN}
-    ### Example for how to add your GitHub Enterprise instance using the API:
-    # - host: ghe.example.net
-    #   apiBaseUrl: https://ghe.example.net/api/v3
-    #   token: ${GHE_TOKEN}
+# integrations:
+#   github:
+#     - host: github.com
+#       # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+#       # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
+#       token: ${GITHUB_TOKEN}
+# scaffolder:
+#   # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
-proxy:
-  ### Example for how to add a proxy endpoint for the frontend.
-  ### A typical reason to do this is to handle HTTPS and CORS for internal services.
-  # endpoints:
-  #   '/test':
-  #     target: 'https://example.com'
-  #     changeOrigin: true
+# catalog:
+#   import:
+#     entityFilename: catalog-info.yaml
+#     pullRequestBranchName: backstage-integration
+#   rules:
+#     - allow: [Component, System, API, Resource, Location, Template, Domain]
+#   locations:
+#     # Local example data, file locations are relative to the backend process, typically `packages/backend`
+#     - type: file
+#       target: ../../examples/entities.yaml
 
-# Reference documentation http://backstage.io/docs/features/techdocs/configuration
-# Note: After experimenting with basic setup, use CI/CD to generate docs
-# and an external cloud storage when deploying TechDocs for production use-case.
-# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
-techdocs:
-  builder: 'local' # Alternatives - 'external'
-  generator:
-    runIn: 'docker' # Alternatives - 'local'
-  publisher:
-    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+#     # Local example template
+#     - type: file
+#       target: ../../examples/template/template.yaml
+#       rules:
+#         - allow: [Template]
 
-auth:
-  # see https://backstage.io/docs/auth/ to learn about auth providers
-  providers:
-    # See https://backstage.io/docs/auth/guest/provider
-    guest: {}
+#     # Local example organizational data
+#     - type: file
+#       target: ../../examples/org.yaml
+#       rules:
+#         - allow: [User, Group]
 
-scaffolder:
-  # see https://backstage.io/docs/features/software-templates/configuration for software template options
+#     ## Uncomment these lines to add more example data
+#     # - type: url
+#     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
 
-catalog:
-  import:
-    entityFilename: catalog-info.yaml
-    pullRequestBranchName: backstage-integration
-  rules:
-    - allow: [Component, System, API, Resource, Location]
-  locations:
-    # Local example data, file locations are relative to the backend process, typically `packages/backend`
-    - type: file
-      target: ../../examples/entities.yaml
+#     ## Uncomment these lines to add an example org
+#     # - type: url
+#     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
+#     #   rules:
+#     #     - allow: [User, Group]
 
-    # Local example template
-    - type: file
-      target: ../../examples/template/template.yaml
-      rules:
-        - allow: [Template]
+# kubernetes:
+#   # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 
-    # Local example organizational data
-    - type: file
-      target: ../../examples/org.yaml
-      rules:
-        - allow: [User, Group]
+# # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
+# permission:
+#   # setting this to `false` will disable permissions
+#   enabled: true
+# Backstage override configuration for your local development environment
+# app:
+#   listen:
+#     host: 0.0.0.0
 
-    ## Uncomment these lines to add more example data
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+# auth:
+#   environment: development
+#   providers:
+#     github:
+#       development:
+#         clientId: ${AUTH_GITHUB_CLIENT_ID}
+#         clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+#         ## uncomment if using GitHub Enterprise
+#         # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
+#         signIn:
+#           resolvers:
+#             # Matches the GitHub username with the Backstage user entity name.
+#             # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers.
+#             - resolver: usernameMatchingUserEntityName
 
-    ## Uncomment these lines to add an example org
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
-    #   rules:
-    #     - allow: [User, Group]
 
-kubernetes:
-  # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+# catalog:
+#   rules:
+#     - allow: [Component, System, API, Resource, Location, Template]
+#   locations:
+#     # Local example data, file locations are relative to the backend process, typically `packages/backend`
+#     - type: file
+#       target: /app/backstage/catalog/entities/users.yaml
+#       rules:
+#         - allow: [User]
 
-# see https://backstage.io/docs/permissions/getting-started for more on the permission framework
-permission:
-  # setting this to `false` will disable permissions
-  enabled: true
+#     - type: file
+#       target: /app/backstage/catalog/entities/groups.yaml
+#       rules:
+#         - allow: [Group]
+
+#     - type: url
+#       target: https://github.com/saagarsvs05/backstage-software-template/blob/main/python-app/template.yaml
+#       rules:
+#         - allow: [Template]
+    
+#     - type: url
+#       target: https://github.com/saagarsvs05/backstage-software-template/blob/main/nodejs-app/template.yaml
+#       rules:
+#         - allow: [Template]
+
+#     - type: url
+#       target: https://github.com/saagarsvs05/backstage-software-template/blob/main/react-app/template.yaml
+#       rules:
+#         - allow: [Template]
+
+#     - type: url
+#       target: https://github.com/saagarsvs05/backstage-software-template/blob/main/dotnet-app/template.yaml
+#       rules:
+#         - allow: [Template]
+#     - type: url
+#       target: https://github.com/saagarsvs05/backstage-software-template/blob/main/angular-app/template.yaml
+#       rules:
+#         - allow: [Template]
+# techdocs:
+#   builder: 'local'
+#   publisher:
+#     type: 'local'
+#   generator:
+#     runIn: local
+
+
+# integrations:
+#   github:
+#     - host: github.com
+#       # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+#       # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
+#       token: ${GITHUB_TOKEN}
+
+# kubernetes:
+#   serviceLocatorMethod:
+#     type: 'multiTenant'
+#   clusterLocatorMethods:
+#     - type: 'config'
+#       clusters:
+#         - url: https://backstage--devopsautomation-b58fc1-zoftbowd.hcp.eastus2.azmk8s.io
+#           name: backstage-aks
+#           authProvider: 'azure'
+#           skipTLSVerify: false
+#           skipMetricsLookup: false

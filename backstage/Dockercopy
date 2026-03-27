@@ -20,13 +20,17 @@ FROM node:22-bookworm-slim AS build
 ENV PYTHON=/usr/bin/python3
 
 # Install isolate-vm dependencies, these are needed by the @backstage/plugin-scaffolder-backend.
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
     apt-get install -y --no-install-recommends python3 g++ build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # Install sqlite3 dependencies. You can skip this if you don't use sqlite3 in the image,
 # in which case you should also move better-sqlite3 to "devDependencies" in package.json.
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
     apt-get install -y --no-install-recommends libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
 
@@ -43,7 +47,8 @@ WORKDIR /app
 
 COPY --from=packages --chown=node:node /app .
 
-RUN yarn install --immutable || yarn install
+RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
+    yarn install --immutable || yarn install
 
 COPY --chown=node:node . .
 
@@ -61,13 +66,17 @@ FROM node:22-bookworm-slim
 ENV PYTHON=/usr/bin/python3
 
 # Install isolate-vm dependencies, these are needed by the @backstage/plugin-scaffolder-backend.
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
     apt-get install -y --no-install-recommends python3 g++ build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # Install sqlite3 dependencies. You can skip this if you don't use sqlite3 in the image,
 # in which case you should also move better-sqlite3 to "devDependencies" in package.json.
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
     apt-get install -y --no-install-recommends libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
 
@@ -99,7 +108,8 @@ COPY --from=build --chown=node:node /app/yarn.lock /app/package.json /app/packag
 # plugins that define a `bin` export, the bin files need to be copied as well to
 # be linked in node_modules/.bin during yarn install.
 
-RUN yarn workspaces focus --all --production && rm -rf "$(yarn cache clean)"
+RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
+    yarn workspaces focus --all --production && rm -rf "$(yarn cache clean)"
 
 # Copy the built packages from the build stage
 COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./

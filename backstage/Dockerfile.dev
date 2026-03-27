@@ -1,0 +1,20 @@
+FROM node:20-bookworm-slim
+
+# Install runtime/build deps
+RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/backstage
+
+# Copy full repository (development image)
+COPY . /app/backstage/
+
+# Enable Yarn and install dependencies
+RUN corepack enable && yarn install --frozen-lockfile
+
+ENV NODE_ENV=development
+ENV PORT=7007
+
+EXPOSE 7007 3000
+
+# Start Backstage in development mode (serves app + backend)
+CMD ["yarn", "start"]
