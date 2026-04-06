@@ -1,6 +1,7 @@
 app:
   title: Scaffolded Backstage App
-  baseUrl: http://localhost:7007
+  # baseUrl: http://localhost:7007
+  baseUrl: http://128.85.222.209
   listen: 
     host: 0.0.0.0
 
@@ -14,7 +15,8 @@ backend:
 #   # auth:
 #   #   keys:
 #   #     - secret: ${BACKEND_SECRET}
-  baseUrl: http://localhost:7007
+  # baseUrl: http://localhost:7007
+  baseUrl: http://128.85.222.209
   listen:
     port: 7007
 #     # Uncomment the following host directive to bind to specific interfaces
@@ -22,10 +24,13 @@ backend:
     host: 0.0.0.0
   csp:
     connect-src: ["'self'", 'http:', 'https:']
+    img-src: ["'self'", 'http:', 'https:']
+    upgrade-insecure-requests: false
 #     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
 #     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: http://localhost:7007
+    # origin: http://localhost:7007
+    origin: http://128.85.222.209
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
     Access-Control-Allow-Origin: '*'
